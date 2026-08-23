@@ -8,7 +8,7 @@ Python・EXE・APIキーは一切不要です。対応ブラウザで `index.htm
 
 ## 🚀 今すぐ試す（GitHub Pages）
 
-**➡️ [KariPom Webを開く](#)**（公開後にURLを追記します）
+**➡️ [KariPom Webを開く](https://kariagepompadour.github.io/KariPom-Web/)**
 
 インストール・ダウンロード不要で、上記リンクを開くだけですぐに使えます。
 
