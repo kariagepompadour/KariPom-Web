@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -38,8 +38,8 @@
   </div>
   <div id="startOverlay">
     <div id="startCard">
-      <button id="startBtn">🔊 PC音声を開始</button>
-      <div id="startNote">ChatGPTなど、かりポムに喋らせたいChromeタブを1つ選び、<br>「タブの音声も共有する」をONにしてください。</div>
+      <button id="startBtn">🔊 Start PC Audio</button>
+      <div id="startNote">Select the Chrome tab you want KariPom to react to, such as ChatGPT,<br>and make sure <b>Share tab audio</b> is enabled.</div>
       <div id="status"></div>
     </div>
   </div>
@@ -1234,22 +1234,22 @@ bindThird("character","character");bindThird("visualizer","visualizer");bindThir
 
 async function startCapture(){
   try{
-    if(!navigator.mediaDevices?.getDisplayMedia)throw new Error("このブラウザではタブ音声共有を利用できません。");
+    if(!navigator.mediaDevices?.getDisplayMedia)throw new Error("This browser does not support tab audio sharing.");
     let controller=null,options={video:true,audio:true};
     if("CaptureController" in window){try{controller=new CaptureController();options.controller=controller}catch(_){}}
     const s=await navigator.mediaDevices.getDisplayMedia(options);
-    if(!s.getAudioTracks().length){s.getTracks().forEach(t=>t.stop());throw new Error("音声トラックがありません。「タブの音声も共有する」をONにしてください。")}
+    if(!s.getAudioTracks().length){s.getTracks().forEach(t=>t.stop());throw new Error("No audio track was shared. Make sure “Share tab audio” is enabled.")}
     if(controller?.setFocusBehavior){try{controller.setFocusBehavior("no-focus-change")}catch(_){}}
     stopCapture(false);stream=s;audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume();
     analyser=audioCtx.createAnalyser();analyser.fftSize=4096;analyser.smoothingTimeConstant=.10;analyser.minDecibels=-100;analyser.maxDecibels=-10;
     timeData=new Float32Array(analyser.fftSize);freqData=new Float32Array(analyser.frequencyBinCount);source=audioCtx.createMediaStreamSource(stream);source.connect(analyser);
     stream.getTracks().forEach(t=>t.addEventListener("ended",()=>stopCapture(true)));
     overlay.style.display="none";statusEl.textContent="";
-  }catch(e){statusEl.textContent=`開始できません：${e.message}`}
+  }catch(e){statusEl.textContent=`Could not start: ${e.message}`}
 }
 function stopCapture(show=true){
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}if(source){try{source.disconnect()}catch(_){}source=null}if(audioCtx){try{audioCtx.close()}catch(_){}audioCtx=null}
-  analyser=null;speaking=false;wasSpeaking=false;mouthOpen=false;fft.fill(0);fftSmooth.fill(0);if(show){overlay.style.display="flex";statusEl.textContent="共有が停止しました。"}
+  analyser=null;speaking=false;wasSpeaking=false;mouthOpen=false;fft.fill(0);fftSmooth.fill(0);if(show){overlay.style.display="flex";statusEl.textContent="Audio sharing has stopped."}
 }
 document.getElementById("startBtn").addEventListener("click",startCapture);
 
