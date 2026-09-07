@@ -1,86 +1,91 @@
 
 # 🌐 KariPom Web
 
-**インストール不要。ブラウザで開くだけ。**
-KariPom Webは、PythonアプリとしてPC音声とのリアルタイム口パクを楽しめる **[KariPom Desktop](https://github.com/kariagepompadour/KariPom-Desktop)** をベースに、ブラウザだけで動くように移植したWeb版です。
+[日本語 README](README_JA.md)
 
-Python・EXE・APIキーは一切不要です。対応ブラウザで `index.html` を開く（またはGitHub Pages版を開く）だけで、その場で動きます。
+**No installation. Just open it in your browser.**
 
-## 🚀 今すぐ試す（GitHub Pages）
+KariPom Web is the browser-based version of **[KariPom Desktop](https://github.com/kariagepompadour/KariPom-Desktop)**, a Python app that lets KariPom lip-sync in real time to audio playing on your PC.
 
-**➡️ [KariPom Webを開く](https://kariagepompadour.github.io/KariPom-Web/)**
+No Python, EXE, or API key is required. Just open `index.html` in a supported browser — or use the GitHub Pages version — and KariPom is ready to go.
 
-インストール・ダウンロード不要で、上記リンクを開くだけですぐに使えます。
+## 🚀 Try It Now — GitHub Pages
 
-## 🐰 これは何？
+**➡️ [Open KariPom Web](https://kariagepompadour.github.io/KariPom-Web/)**
 
-かりポムは、元々M5Stack CoreS3で作った顔ロボットです。
+No installation or download is required. Just open the link above and start using it.
 
-実機がなくても「かりポム」を気軽に試してもらえるように、まずPC単体で動く KariPom Desktop（Pythonアプリ）を作りました。
+## 🐰 What Is KariPom Web?
 
-でも、ちょっと試してみるためだけにアプリをダウンロードしてインストールするのは、意外とハードルが高いものです。
+KariPom originally started as a face robot built with an M5Stack CoreS3.
 
-「それなら、ブラウザで開くだけで試せるようにしよう」
+To make KariPom easier to try without the physical hardware, I first created KariPom Desktop, a standalone Python app for PC.
 
-そうして作ったのが、この KariPom Web です。インストールもPythonもAPIキーも必要ありません。
+But downloading and installing an app can still be a surprisingly big step when you just want to try something out.
 
-ChatGPTなど、PCから再生される音声に合わせて、画面の「かりポム」がリアルタイムに口パクします。会話していないときも、瞬きしたり鼻をヒクヒクさせたりしながら画面の中で過ごします。
+So I thought: **why not make KariPom run directly in a browser?**
+
+That became KariPom Web. No installation, Python, or API key is required.
+
+KariPom reacts in real time to audio playing on your PC — such as ChatGPT's voice — and lip-syncs on screen. Even when nobody is speaking, KariPom stays alive with little movements such as blinking and twitching its nose.
 
 ## ✨ Features
 
-- **Character**：KariPom／Miss KariPom／None（顔を表示しない）の3種類
-- **Visualizer**：口パクする通常の「Face」を含む、全9種類のオーディオビジュアライザー
-- **Lighting**：レトロアーケード風スクリーンセーバーなどを含む、全25種類の背景演出（Noneを含む）
-- 画面下の3ボタン操作（左1/3＝前へ、中央1/3＝無操作、右1/3＝次へ）でCharacter・Visualizer・Lightingをそれぞれ切り替え
-- Visualizer Random／Lighting Randomで、3分ごとの自動切り替えもおまかせ可能
+- **Character:** KariPom / Miss KariPom / None — three character display options
+- **Visualizer:** 9 audio visualizers, including the standard lip-syncing **Face** mode
+- **Lighting:** 25 background effects, including retro arcade-style screensavers and **None**
+- Use the three buttons below the screen to switch **Character**, **Visualizer**, and **Lighting**. Click the left third for the previous option, the right third for the next option, or the center third to leave it unchanged.
+- **Visualizer Random** and **Lighting Random** can automatically switch modes every 3 minutes.
 
-## 🎧 仕組み（PC音声の取得方法）
+## 🎧 How It Works — Capturing PC Audio
 
-KariPom Webは、ChatGPT APIなどと直接連携しているわけではありません。
+KariPom Web does **not** connect directly to the ChatGPT API or any other AI API.
 
-対応するPCブラウザの **「画面・タブ音声共有」機能**（`getDisplayMedia`）を使って、PC上で実際に再生されている音声（ChatGPTの声など）を取得し、その音声をブラウザ内の **Web Audio API** でリアルタイム解析して、口パク・EQ・各種Visualizerを動かしています。
+Instead, it uses the supported desktop browser's **screen/tab audio sharing** feature (`getDisplayMedia`) to capture audio that is actually playing on your PC, such as ChatGPT's voice. The audio is then analyzed in real time inside the browser using the **Web Audio API** to drive KariPom's lip-sync, EQ, and visualizers.
 
-**音声データを外部サーバーへ送信する処理は、現在のコードには存在しません。** 取得した音声はブラウザのメモリ上で解析されるだけで、どこにも送信・保存されません（コードは単一の `index.html` ファイルにすべて収まっており、内容はブラウザの「ページのソースを表示」でどなたでも確認できます）。
+**The current code does not send your audio data to any external server.** The captured audio is analyzed only in browser memory and is neither uploaded nor saved. The entire application is contained in a single `index.html` file, so anyone can inspect the source code directly in the browser.
 
-マイク入力には対応していません。PCの中で再生されている音声（タブ音声・システム音声）を共有する方式です。
+Microphone input is not supported. KariPom Web works by sharing audio that is already playing on your PC, such as tab audio or system audio.
 
-## 🖥️ 使い方
+## 🖥️ How to Use
 
-1. 画面・タブ音声共有に対応したPCブラウザで、GitHub Pages版を開く（またはダウンロードした `index.html` を開く）。
-2. 画面中央の「🔊 PC音声を開始」ボタンを押す。
-3. 共有ダイアログで、かりポムに喋らせたい対象（ChatGPTのタブなど）を選び、**「タブの音声も共有する」を必ずONにする**。
-4. 対象タブで音声を再生すると、その声に合わせてかりポムが口パクします。
+1. Open the GitHub Pages version — or a downloaded copy of `index.html` — in a desktop browser that supports screen/tab audio sharing.
+2. Click **“🔊 Start PC Audio.”**
+3. In the sharing dialog, select the source you want KariPom to react to, such as the Chrome tab running ChatGPT, and make sure **“Share tab audio”** is enabled.
+4. Play audio from the selected source. KariPom will lip-sync to the voice in real time.
 
-## 🌏 対応ブラウザについて
+## 🌏 Browser Support
 
-KariPom WebはPC（Windows / macOS）向けです。
+KariPom Web is designed for desktop PCs running **Windows or macOS**.
 
-PC上で再生されている音声を、ブラウザの画面・タブ音声共有機能を使って取得します。そのため、この音声共有機能に対応したPCブラウザ環境が必要です。
+It captures audio playing on your PC through the browser's screen/tab audio sharing feature, so a desktop browser that supports this capability is required.
 
-Windows / macOSでは実機での動作を確認しています。
+Operation has been tested on Windows and macOS.
 
-iPhone / Androidなどのモバイル環境では、Webページ自体を表示できる場合でも、現在KariPom Webが必要とする音声共有機能を利用できないため、音声連動機能には対応していません。
+On mobile devices such as iPhone and Android, the web page itself may open, but the audio-reactive features are currently not supported because the required screen/tab audio sharing capability is unavailable in the way KariPom Web needs it.
 
-## 🐰 姉妹プロジェクト
+## 🐰 Related Projects
 
-- **[KariPom](https://github.com/kariagepompadour/KariPom)** — M5Stack CoreS3を使った、しゃべって動くデスクトップ・アニマトロニクスロボット本体
-- **[KariPom Desktop](https://github.com/kariagepompadour/KariPom-Desktop)** — Pythonで動く、PCスタンドアロン版（Windows／macOS／Linux対応）
-- **KariPom Web**（本リポジトリ）— ブラウザだけで動く、インストール不要のWeb版
+- **[KariPom](https://github.com/kariagepompadour/KariPom)** — The original talking and moving desktop animatronic robot built with M5Stack CoreS3
+- **[KariPom Desktop](https://github.com/kariagepompadour/KariPom-Desktop)** — Standalone Python version for Windows / macOS / Linux
+- **KariPom Web** (this repository) — Browser-based version with no installation required
 
 ## 📄 License
 
-ソースコードは **MIT License** で公開しています。詳細は [LICENSE](LICENSE) をご覧ください。
+The source code is released under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 Copyright (c) 2026 Kariage POMPADOUR Entertainment Corporation
 
-### KariPom / かりポム ブランドについて
+### KariPom Brand
 
-MIT Licenseは、このリポジトリに含まれるソフトウェアコードの利用条件を定めるものです。
+The MIT License defines the terms for using the software code contained in this repository.
 
-**「KariPom」「かりポム」の名称、ロゴ、キャラクターその他のブランド要素について、MIT Licenseによる使用許諾を与えるものではありません。**
+**It does not grant permission to use the names “KariPom” and “かりポム”, logo, character, or other brand elements.**
 
 ---
 
 ## Welcome to KariPom World!
 
-ブラウザを開けば、あなたのPCにも、かりポムがやってきます。
+Open your browser, and KariPom can come to life on your PC too.
+
+---
