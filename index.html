@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KariPom Web v0.6.8</title>
+<title>KariPom Web v0.6.9</title>
 <style>
   html,body{margin:0;background:#111;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
   body{display:grid;place-items:center}
@@ -291,11 +291,19 @@ function updateAudio(now){
   if(!analyser)return;
   analyser.getFloatTimeDomainData(timeData);
   let ss=0;for(let i=0;i<timeData.length;i++)ss+=timeData[i]*timeData[i];rms=Math.sqrt(ss/timeData.length);
-  if(rms>.02){lastLoud=now;hardSilentStart=null;speaking=true}
-  else if(rms<.0005){
-    if(hardSilentStart===null)hardSilentStart=now;
-    speaking=!((now-hardSilentStart)>=800 || (now-lastLoud)>5000);
-  }else{hardSilentStart=null;speaking=(now-lastLoud)<=5000}
+  if(isMobileAudioDevice){
+    // Mobile microphones carry a constant noise floor, so use a short
+    // hysteresis/hold instead of the desktop 5 s speaking tail.
+    if(rms>.015){lastLoud=now;speaking=true}
+    else if(rms<.006){speaking=(now-lastLoud)<=250}
+    else{speaking=(now-lastLoud)<=350}
+  }else{
+    if(rms>.02){lastLoud=now;hardSilentStart=null;speaking=true}
+    else if(rms<.0005){
+      if(hardSilentStart===null)hardSilentStart=now;
+      speaking=!((now-hardSilentStart)>=800 || (now-lastLoud)>5000);
+    }else{hardSilentStart=null;speaking=(now-lastLoud)<=5000}
+  }
   if(now-lastFFT>=80){
     lastFFT=now;analyser.getFloatFrequencyData(freqData);
     const binHz=(audioCtx.sampleRate/2)/freqData.length;
