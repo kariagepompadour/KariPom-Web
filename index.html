@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KariPom Web v0.6.6</title>
+<title>KariPom Web v0.6.8</title>
 <style>
   html,body{margin:0;background:#111;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
   body{display:grid;place-items:center}
@@ -1232,26 +1232,46 @@ function bindThird(id,kind){
 }
 bindThird("character","character");bindThird("visualizer","visualizer");bindThird("lighting","lighting");
 
+const isMobileAudioDevice=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+const startBtn=document.getElementById("startBtn"),startNote=document.getElementById("startNote");
+if(isMobileAudioDevice){
+  startBtn.textContent="🎤 Start Microphone";
+  startNote.innerHTML='On iOS and Android, tab audio sharing is not available.<br>Please allow <b>microphone access</b> when prompted.';
+}
+
 async function startCapture(){
   try{
-    if(!navigator.mediaDevices?.getDisplayMedia)throw new Error("This browser does not support tab audio sharing.");
-    let controller=null,options={video:true,audio:true};
-    if("CaptureController" in window){try{controller=new CaptureController();options.controller=controller}catch(_){}}
-    const s=await navigator.mediaDevices.getDisplayMedia(options);
-    if(!s.getAudioTracks().length){s.getTracks().forEach(t=>t.stop());throw new Error("No audio track was shared. Make sure “Share tab audio” is enabled.")}
-    if(controller?.setFocusBehavior){try{controller.setFocusBehavior("no-focus-change")}catch(_){}}
-    stopCapture(false);stream=s;audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume();
+    let s,controller=null;
+    if(isMobileAudioDevice){
+      if(!navigator.mediaDevices?.getUserMedia)throw new Error("This browser does not support microphone input.");
+      stopCapture(false);
+      audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      await audioCtx.resume();
+      s=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+      stream=s;
+    }else{
+      if(!navigator.mediaDevices?.getDisplayMedia)throw new Error("This browser does not support tab audio sharing.");
+      let options={video:true,audio:true};
+      if("CaptureController" in window){try{controller=new CaptureController();options.controller=controller}catch(_){}}
+      s=await navigator.mediaDevices.getDisplayMedia(options);
+      if(!s.getAudioTracks().length){s.getTracks().forEach(t=>t.stop());throw new Error("No audio track was shared. Make sure “Share tab audio” is enabled.")}
+      if(controller?.setFocusBehavior){try{controller.setFocusBehavior("no-focus-change")}catch(_){}}
+      stopCapture(false);stream=s;audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume();
+    }
     analyser=audioCtx.createAnalyser();analyser.fftSize=4096;analyser.smoothingTimeConstant=.10;analyser.minDecibels=-100;analyser.maxDecibels=-10;
     timeData=new Float32Array(analyser.fftSize);freqData=new Float32Array(analyser.frequencyBinCount);source=audioCtx.createMediaStreamSource(stream);source.connect(analyser);
     stream.getTracks().forEach(t=>t.addEventListener("ended",()=>stopCapture(true)));
     overlay.style.display="none";statusEl.textContent="";
-  }catch(e){statusEl.textContent=`Could not start: ${e.message}`}
+  }catch(e){
+    if(audioCtx && !stream){try{audioCtx.close()}catch(_){}audioCtx=null}
+    statusEl.textContent=`Could not start: ${e.message}`
+  }
 }
 function stopCapture(show=true){
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}if(source){try{source.disconnect()}catch(_){}source=null}if(audioCtx){try{audioCtx.close()}catch(_){}audioCtx=null}
-  analyser=null;speaking=false;wasSpeaking=false;mouthOpen=false;fft.fill(0);fftSmooth.fill(0);if(show){overlay.style.display="flex";statusEl.textContent="Audio sharing has stopped."}
+  analyser=null;speaking=false;wasSpeaking=false;mouthOpen=false;fft.fill(0);fftSmooth.fill(0);if(show){overlay.style.display="flex";statusEl.textContent=isMobileAudioDevice?"Microphone input has stopped.":"Audio sharing has stopped."}
 }
-document.getElementById("startBtn").addEventListener("click",startCapture);
+startBtn.addEventListener("click",startCapture);
 
 function frame(now){
   let dt=clamp(now-lastFrame,0,50);lastFrame=now;updateAudio(now);updateFace(now);updateViz(now,dt);updateRandom(now);
